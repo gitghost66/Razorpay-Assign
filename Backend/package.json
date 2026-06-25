@@ -4,6 +4,7 @@
   "description": "Role-Based Access Control (RBAC) Reimbursements Management Tool",
   "main": "src/server.js",
   "scripts": {
+    "start": "node src/server.js",
     "dev": "node src/server.js",
     "db:migrate": "node src/db/migrate.js",
     "db:seed-data": "node src/db/seeds/seed_cfo.js"
