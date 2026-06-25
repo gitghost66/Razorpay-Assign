@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ReimburseX — Employee Reimbursement Portal</title>
+  <meta name="description"
+    content="Role-based reimbursement management portal for org.com employees. Submit, review, and approve expense claims seamlessly." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="stylesheet" href="css/pages.css" />
+</head>
+
+<body>
+
+  <!-- ── Toast Notification ──────────────────────────────────────── -->
+  <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- ── Global Loading Overlay ─────────────────────────────────── -->
+  <div id="global-loader" class="global-loader hidden" aria-hidden="true">
+    <div class="loader-spinner"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+         AUTH PAGES  (shown when user is NOT logged in)
+    ══════════════════════════════════════════════════════════════════ -->
+  <div id="auth-section" class="auth-section hidden">
+
+    <!-- Login Page -->
+    <div id="page-login" class="auth-page">
+      <div class="auth-card card-animate">
+        <div class="auth-logo">
+          <span class="logo-icon">💼</span>
+          <span class="logo-text">ReimburseX</span>
+        </div>
+        <h1 class="auth-title">Welcome back</h1>
+        <p class="auth-subtitle">Sign in to your org.com account</p>
+
+        <form id="login-form" class="auth-form" novalidate>
+          <div class="form-group">
+            <label for="login-email" class="form-label">Email address</label>
+            <input id="login-email" type="email" class="form-input" placeholder="you@org.com" autocomplete="email"
+              required />
+            <span class="field-error" id="login-email-error"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="login-password" class="form-label">Password</label>
+            <div class="input-wrapper">
+              <input id="login-password" type="password" class="form-input" placeholder="Enter your password"
+                autocomplete="current-password" required />
+              <button type="button" class="toggle-password" aria-label="Toggle password visibility"
+                data-target="login-password">👁</button>
+            </div>
+            <span class="field-error" id="login-password-error"></span>
+          </div>
+
+          <button type="submit" id="login-submit-btn" class="btn btn-primary btn-full">
+            <span class="btn-text">Sign in</span>
+            <span class="btn-spinner hidden"></span>
+          </button>
+        </form>
+
+        <p class="auth-switch">
+          Don't have an account?
+          <a href="#" id="go-to-register" class="auth-link">Register here</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Register Page -->
+    <div id="page-register" class="auth-page hidden">
+      <div class="auth-card card-animate">
+        <div class="auth-logo">
+          <span class="logo-icon">💼</span>
+          <span class="logo-text">ReimburseX</span>
+        </div>
+        <h1 class="auth-title">Create account</h1>
+        <p class="auth-subtitle">Join your organisation on ReimburseX</p>
+
+        <form id="register-form" class="auth-form" novalidate>
+          <div class="form-group">
+            <label for="reg-name" class="form-label">Full name</label>
+            <input id="reg-name" type="text" class="form-input" placeholder="Jane Doe" autocomplete="name" required />
+            <span class="field-error" id="reg-name-error"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-email" class="form-label">Email address</label>
+            <input id="reg-email" type="email" class="form-input" placeholder="you@org.com" autocomplete="email"
+              required />
+            <span class="field-error" id="reg-email-error"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-password" class="form-label">Password</label>
+            <div class="input-wrapper">
+              <input id="reg-password" type="password" class="form-input" placeholder="Minimum 6 characters"
+                autocomplete="new-password" required />
+              <button type="button" class="toggle-password" aria-label="Toggle password visibility"
+                data-target="reg-password">👁</button>
+            </div>
+            <span class="field-error" id="reg-password-error"></span>
+          </div>
+
+          <button type="submit" id="register-submit-btn" class="btn btn-primary btn-full">
+            <span class="btn-text">Create account</span>
+            <span class="btn-spinner hidden"></span>
+          </button>
+        </form>
+
+        <p class="auth-switch">
+          Already have an account?
+          <a href="#" id="go-to-login" class="auth-link">Sign in</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+         APP SHELL  (shown when user IS logged in)
+    ══════════════════════════════════════════════════════════════════ -->
+  <div id="app-section" class="app-shell hidden">
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar" role="navigation" aria-label="Main navigation">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="logo-icon">💼</span>
+          <span class="logo-text">ReimburseX</span>
+        </div>
+        <button id="sidebar-close-btn" class="sidebar-close" aria-label="Close sidebar">✕</button>
+      </div>
+
+      <div class="sidebar-user" id="sidebar-user-info">
+        <div class="user-avatar" id="user-avatar-initials">JS</div>
+        <div class="user-meta">
+          <span class="user-name" id="sidebar-user-name">Loading…</span>
+          <span class="user-role-badge" id="sidebar-user-role">EMP</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <ul class="nav-list" id="nav-list">
+          <!-- Populated by JS based on role -->
+        </ul>
+      </nav>
+
+      <button id="logout-btn" class="btn btn-logout">
+        <span>⎋</span> Sign out
+      </button>
+    </aside>
+
+    <!-- Mobile header -->
+    <header class="mobile-header" id="mobile-header">
+      <button id="sidebar-open-btn" class="hamburger" aria-label="Open menu">☰</button>
+      <span class="mobile-logo">ReimburseX</span>
+      <div class="mobile-user-avatar" id="mobile-user-avatar">JS</div>
+    </header>
+
+    <!-- Main content area -->
+    <main id="main-content" class="main-content" role="main">
+
+      <!-- ── Dashboard / My Reimbursements (all roles) ── -->
+      <section id="view-dashboard" class="view hidden">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title" id="dashboard-title">My Reimbursements</h2>
+            <p class="page-subtitle" id="dashboard-subtitle">Track your submitted expense claims</p>
+          </div>
+          <button id="new-claim-btn" class="btn btn-primary hidden">
+            + New Claim
+          </button>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stats-row" id="stats-row"></div>
+
+        <!-- Reimbursements Table -->
+        <div class="card table-card">
+          <div class="card-header">
+            <h3 class="card-title" id="reimbursements-table-title">Claims</h3>
+            <button id="refresh-reimbursements-btn" class="btn btn-ghost btn-sm">↻ Refresh</button>
+          </div>
+          <div id="reimbursements-table-container">
+            <div class="table-loading" id="reimb-loading">
+              <div class="skeleton-row"></div>
+              <div class="skeleton-row"></div>
+              <div class="skeleton-row"></div>
+            </div>
+            <table class="data-table hidden" id="reimbursements-table">
+              <thead>
+                <tr id="reimbursements-thead-row"></tr>
+              </thead>
+              <tbody id="reimbursements-tbody"></tbody>
+            </table>
+            <div class="empty-state hidden" id="reimbursements-empty">
+              <span class="empty-icon">📭</span>
+              <p>No reimbursements found</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Submit New Claim (EMP only) ── -->
+      <section id="view-submit-claim" class="view hidden">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Submit Expense Claim</h2>
+            <p class="page-subtitle">Fill in the details for your reimbursement request</p>
+          </div>
+        </div>
+
+        <div class="card form-card">
+          <form id="claim-form" class="auth-form" novalidate>
+            <div class="form-group">
+              <label for="claim-title" class="form-label">Claim Title</label>
+              <input id="claim-title" type="text" class="form-input"
+                placeholder="e.g. Flight to Mumbai — June conference" required />
+              <span class="field-error" id="claim-title-error"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="claim-description" class="form-label">Description</label>
+              <textarea id="claim-description" class="form-input form-textarea" rows="4"
+                placeholder="Provide details about this expense…" required></textarea>
+              <span class="field-error" id="claim-description-error"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="claim-amount" class="form-label">Amount (₹)</label>
+              <input id="claim-amount" type="number" class="form-input" placeholder="0.00" min="0.01" step="0.01"
+                required />
+              <span class="field-error" id="claim-amount-error"></span>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" id="cancel-claim-btn" class="btn btn-ghost">Cancel</button>
+              <button type="submit" id="submit-claim-btn" class="btn btn-primary">
+                <span class="btn-text">Submit Claim</span>
+                <span class="btn-spinner hidden"></span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- ── Review Reimbursements (RM, APE, CFO) ── -->
+      <section id="view-review" class="view hidden">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Review Claims</h2>
+            <p class="page-subtitle" id="review-subtitle">Claims awaiting your action</p>
+          </div>
+          <button id="refresh-review-btn" class="btn btn-ghost">↻ Refresh</button>
+        </div>
+
+        <div class="card table-card">
+          <div id="review-table-container">
+            <div class="table-loading" id="review-loading">
+              <div class="skeleton-row"></div>
+              <div class="skeleton-row"></div>
+              <div class="skeleton-row"></div>
+            </div>
+            <table class="data-table hidden" id="review-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Description</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="review-tbody"></tbody>
+            </table>
+            <div class="empty-state hidden" id="review-empty">
+              <span class="empty-icon">✅</span>
+              <p>No claims pending your review</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Employees (RM, APE, CFO) ── -->
+      <section id="view-employees" class="view hidden">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Employees</h2>
+            <p class="page-subtitle" id="emp-subtitle">Manage your team</p>
+          </div>
+          <button id="refresh-employees-btn" class="btn btn-ghost">↻ Refresh</button>
+        </div>
+
+        <!-- CFO assign/unassign panel -->
+        <div class="card form-card" id="assign-panel" style="display:none;">
+          <h3 class="card-title mb-4">Assign Employee to Manager</h3>
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="assign-emp-id" class="form-label">Employee ID</label>
+              <input id="assign-emp-id" type="number" class="form-input" placeholder="Employee user ID" />
+            </div>
+            <div class="form-group flex-1">
+              <label for="assign-rm-id" class="form-label">Reporting Manager ID</label>
+              <input id="assign-rm-id" type="number" class="form-input" placeholder="RM user ID" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button id="assign-btn" class="btn btn-primary">
+              <span class="btn-text">Assign</span>
+              <span class="btn-spinner hidden"></span>
+            </button>
+            <button id="unassign-btn" class="btn btn-danger">
+              <span class="btn-text">Unassign</span>
+              <span class="btn-spinner hidden"></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="card table-card">
+          <div class="card-header">
+            <h3 class="card-title">Employee List</h3>
+            <div class="search-wrapper">
+              <input id="emp-search" type="text" class="form-input form-input-sm" placeholder="Search…" />
+            </div>
+          </div>
+          <div id="employees-table-container">
+            <div class="table-loading" id="emp-loading">
+              <div class="skeleton-row"></div>
+              <div class="skeleton-row"></div>
+              <div class="skeleton-row"></div>
+            </div>
+            <table class="data-table hidden" id="employees-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th id="emp-actions-th" class="hidden">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="employees-tbody"></tbody>
+            </table>
+            <div class="empty-state hidden" id="employees-empty">
+              <span class="empty-icon">👥</span>
+              <p>No employees found</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Employee Detail (RM/CFO) ── -->
+      <section id="view-employee-detail" class="view hidden">
+        <div class="page-header">
+          <button id="back-from-detail-btn" class="btn btn-ghost">← Back</button>
+          <div>
+            <h2 class="page-title" id="detail-emp-name">Employee Claims</h2>
+            <p class="page-subtitle" id="detail-emp-email"></p>
+          </div>
+        </div>
+
+        <div class="card table-card">
+          <div id="detail-table-container">
+            <div class="table-loading" id="detail-loading">
+              <div class="skeleton-row"></div>
+              <div class="skeleton-row"></div>
+            </div>
+            <table class="data-table hidden" id="detail-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Description</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="detail-tbody"></tbody>
+            </table>
+            <div class="empty-state hidden" id="detail-empty">
+              <span class="empty-icon">📭</span>
+              <p>No reimbursements for this employee</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Role Management (CFO only) ── -->
+      <section id="view-roles" class="view hidden">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Role Management</h2>
+            <p class="page-subtitle">Assign roles to users (CFO only)</p>
+          </div>
+        </div>
+
+        <div class="card form-card">
+          <form id="role-form" class="auth-form" novalidate>
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="role-user-id" class="form-label">User ID</label>
+                <input id="role-user-id" type="number" class="form-input" placeholder="Enter user ID" required />
+                <span class="field-error" id="role-user-id-error"></span>
+              </div>
+
+              <div class="form-group flex-1">
+                <label for="role-select" class="form-label">Assign Role</label>
+                <select id="role-select" class="form-input form-select" required>
+                  <option value="">Select a role…</option>
+                  <option value="EMP">EMP — Employee</option>
+                  <option value="RM">RM — Reporting Manager</option>
+                  <option value="APE">APE — Accounts Payable Executive</option>
+                  <option value="CFO">CFO — Chief Financial Officer</option>
+                </select>
+                <span class="field-error" id="role-select-error"></span>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" id="assign-role-btn" class="btn btn-primary">
+                <span class="btn-text">Assign Role</span>
+                <span class="btn-spinner hidden"></span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card" id="role-result-card" style="display:none;">
+          <div class="role-result" id="role-result-content"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ── Approve/Reject Modal ── -->
+  <div id="action-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-box modal-animate">
+      <h3 class="modal-title" id="modal-title">Confirm Action</h3>
+      <p class="modal-body" id="modal-body">Are you sure you want to proceed?</p>
+      <div class="modal-actions">
+        <button id="modal-cancel-btn" class="btn btn-ghost">Cancel</button>
+        <button id="modal-confirm-btn" class="btn btn-primary">
+          <span class="btn-text" id="modal-confirm-text">Confirm</span>
+          <span class="btn-spinner hidden"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Scripts ── -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/reimbursements.js"></script>
+  <script src="js/employees.js"></script>
+  <script src="js/roles.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>

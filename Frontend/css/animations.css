@@ -1,0 +1,101 @@
+/* =========================================================
+   animations.css — Keyframes & transition utilities
+   ========================================================= */
+
+/* ── Keyframes ───────────────────────────────────────────── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-down {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(40px) scale(0.92); }
+  to   { opacity: 1; transform: translateX(0)   scale(1); }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; transform: translateX(0)   scale(1); max-height: 100px; }
+  to   { opacity: 0; transform: translateX(40px) scale(0.92); max-height: 0; padding: 0; margin: 0; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 16px rgba(108,99,255,0.2); }
+  50%       { box-shadow: 0 0 28px rgba(108,99,255,0.45); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+
+@keyframes nav-item-in {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Animation utility classes ───────────────────────────── */
+.fade-in   { animation: fade-in  var(--transition-slow) ease both; }
+.slide-up  { animation: slide-up var(--transition-slow) ease both; }
+.scale-in  { animation: scale-in var(--transition-base) ease both; }
+.float-anim { animation: float 4s ease-in-out infinite; }
+
+/* Stagger animation helper */
+.stagger-1 { animation-delay: 60ms;  }
+.stagger-2 { animation-delay: 120ms; }
+.stagger-3 { animation-delay: 180ms; }
+.stagger-4 { animation-delay: 240ms; }
+
+/* ── Card animate (auth page) ────────────────────────────── */
+.card-animate {
+  animation: slide-up 500ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* ── Modal animate ───────────────────────────────────────── */
+.modal-animate {
+  animation: scale-in 250ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* ── View transition ─────────────────────────────────────── */
+.view-entering {
+  animation: slide-up 350ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* ── Table row animate ───────────────────────────────────── */
+.row-animate {
+  animation: slide-in-right 300ms ease both;
+}
+
+/* ── Logo float ──────────────────────────────────────────── */
+.logo-icon {
+  display: inline-block;
+  animation: float 3s ease-in-out infinite;
+}
