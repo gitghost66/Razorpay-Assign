@@ -41,6 +41,13 @@ app.use(
   })
 );
 
+app.get("/", (req, res) => {
+  res.json({
+    status: "success",
+    message: "RBAC Reimbursements API is running!"
+  });
+});
+
 // ── Routes ───────────────────────────────────────────────────────────────────
 app.use('/rest/onboardings', onboardingRoutes);
 app.use('/rest/roles', rolesRoutes);
