@@ -6,28 +6,28 @@
 
 const CONFIG = {
   // Backend base URL (no trailing slash)
-  API_BASE_URL: 'http://localhost:7002',
+  API_BASE_URL: 'https://rbac-per.onrender.com',
 
   // API endpoints
   ENDPOINTS: {
-    REGISTER  : '/rest/onboardings/register',
-    LOGIN     : '/rest/onboardings/login',
-    LOGOUT    : '/rest/onboardings/logout',
+    REGISTER: '/rest/onboardings/register',
+    LOGIN: '/rest/onboardings/login',
+    LOGOUT: '/rest/onboardings/logout',
 
-    ROLES_ASSIGN      : '/rest/roles/assign',
+    ROLES_ASSIGN: '/rest/roles/assign',
 
-    EMPLOYEES         : '/rest/employees',
-    EMPLOYEES_ASSIGN  : '/rest/employees/assign',
+    EMPLOYEES: '/rest/employees',
+    EMPLOYEES_ASSIGN: '/rest/employees/assign',
 
-    REIMBURSEMENTS    : '/rest/reimbursements',
+    REIMBURSEMENTS: '/rest/reimbursements',
   },
 
   // Valid roles
   ROLES: {
-    EMP : 'EMP',
-    RM  : 'RM',
-    APE : 'APE',
-    CFO : 'CFO',
+    EMP: 'EMP',
+    RM: 'RM',
+    APE: 'APE',
+    CFO: 'CFO',
   },
 
   // Toast display duration in ms
