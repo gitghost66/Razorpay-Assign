@@ -18,8 +18,10 @@ const app = express();
 // ── Core Middleware ──────────────────────────────────────────────────────────
 app.use(
   cors({
-    // Must be an explicit origin (not `true`) when credentials: true is used
-    // in a cross-origin (different-domain) deployment.
+    // CORS_ORIGIN must be set to the exact frontend URL in Render's dashboard.
+    // The `|| true` fallback allows all origins when the env var is missing,
+    // preventing CORS from blocking the preflight and causing "Cannot reach the server".
+    // NOTE: `origin: undefined` (no fallback) makes cors send NO header → browser blocks fetch().
     origin: process.env.CORS_ORIGIN || true,
     credentials: true,
   })
