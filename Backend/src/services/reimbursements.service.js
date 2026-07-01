@@ -174,7 +174,7 @@ async function getReimbursements({ userId, role }) {
   if (role === 'EMP') {
     // EMP sees all their own reimbursements
     result = await pool.query(
-      `SELECT title, description, amount, status
+      `SELECT id, title, description, amount, status
        FROM reimbursements
        WHERE emp_id = $1
        ORDER BY created_at DESC`,
@@ -183,7 +183,7 @@ async function getReimbursements({ userId, role }) {
   } else if (role === 'RM') {
     // RM sees PENDING reimbursements from their EMPs where rm_approved = false
     result = await pool.query(
-      `SELECT r.title, r.description, r.amount, r.status
+      `SELECT r.id, r.title, r.description, r.amount, r.status
        FROM reimbursements r
        INNER JOIN employee_manager em ON em.emp_id = r.emp_id
        WHERE em.rm_id = $1
@@ -195,7 +195,7 @@ async function getReimbursements({ userId, role }) {
   } else if (role === 'APE') {
     // APE sees reimbursements with rm_approved = true, ape_approved = false, not rejected
     result = await pool.query(
-      `SELECT title, description, amount, status
+      `SELECT id, title, description, amount, status
        FROM reimbursements
        WHERE rm_approved = TRUE
          AND ape_approved = FALSE
@@ -203,11 +203,12 @@ async function getReimbursements({ userId, role }) {
        ORDER BY created_at DESC`
     );
   } else if (role === 'CFO') {
-    // CFO sees reimbursements with ape_approved = true
+    // CFO has full pipeline visibility — sees ALL reimbursements regardless of approval state.
+    // Bug was: WHERE ape_approved = TRUE — this hid every fresh PENDING claim from the CFO
+    // since new claims have ape_approved=FALSE until someone in the chain approves them.
     result = await pool.query(
-      `SELECT title, description, amount, status
+      `SELECT id, title, description, amount, status
        FROM reimbursements
-       WHERE ape_approved = TRUE
        ORDER BY created_at DESC`
     );
   } else {
@@ -259,7 +260,7 @@ async function getReimbursementsByEmployee({ targetUserId, requesterId, requeste
   }
 
   const result = await pool.query(
-    `SELECT title, description, amount, status
+    `SELECT id, title, description, amount, status
      FROM reimbursements
      WHERE emp_id = $1
      ORDER BY created_at DESC`,

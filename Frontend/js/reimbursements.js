@@ -110,8 +110,8 @@ const Reimbursements = (() => {
         ${showActions && claim.status === 'PENDING' ? `
           <td>
             <div style="display:flex;gap:6px;">
-              <button class="btn btn-success btn-sm approve-btn" data-id="${claim.reimbursementId || ''}">Approve</button>
-              <button class="btn btn-danger btn-sm reject-btn"  data-id="${claim.reimbursementId || ''}">Reject</button>
+              <button class="btn btn-success btn-sm approve-btn" data-id="${claim.reimbursementId || claim.id || ''}">Approve</button>
+              <button class="btn btn-danger btn-sm reject-btn"  data-id="${claim.reimbursementId || claim.id || ''}">Reject</button>
             </div>
           </td>
         ` : showActions ? '<td>—</td>' : ''}
@@ -121,6 +121,18 @@ const Reimbursements = (() => {
 
     UI.animateRows(tbody);
     UI.showTable('reimb-loading', 'reimbursements-table', 'reimbursements-empty', true);
+
+    // Bind approve / reject buttons (RM, APE, CFO dashboard)
+    tbody.querySelectorAll('.approve-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        handleUpdateReimbursement(btn.dataset.id, 'APPROVED', btn);
+      });
+    });
+    tbody.querySelectorAll('.reject-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        handleUpdateReimbursement(btn.dataset.id, 'REJECTED', btn);
+      });
+    });
   }
 
   /* ─────────────────────────────────────────────────────────
