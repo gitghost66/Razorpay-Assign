@@ -23,11 +23,18 @@ async function login(req, res, next) {
     const { email, password } = req.body;
     const data = await onboardingService.loginUser({ email, password });
 
-    // Establish session
     req.session.userId = data.userId;
     req.session.role = data.role;
 
-    return res.status(200).json({ status: 'success', data });
+    req.session.save((err) => {
+      if (err) return next(err);
+
+      return res.status(200).json({
+        status: "success",
+        data,
+      });
+    });
+
   } catch (err) {
     next(err);
   }
