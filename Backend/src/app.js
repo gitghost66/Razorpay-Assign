@@ -18,6 +18,8 @@ const app = express();
 // ── Core Middleware ──────────────────────────────────────────────────────────
 app.use(
   cors({
+    // Must be an explicit origin (not `true`) when credentials: true is used
+    // in a cross-origin (different-domain) deployment.
     origin: process.env.CORS_ORIGIN || true,
     credentials: true,
   })
@@ -35,7 +37,11 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      // sameSite:'none' + secure:true are REQUIRED for cross-origin cookie delivery.
+      // Browsers silently discard Set-Cookie headers that omit these attributes
+      // when the frontend and backend are on different domains (e.g. Render subdomains).
+      sameSite: 'none',
+      secure: true,
       maxAge: Number(process.env.SESSION_MAX_AGE) || 24 * 60 * 60 * 1000, // 24h
     },
   })
