@@ -6,43 +6,40 @@
 
 /* ── CSS Custom Properties (Design Tokens) ──────────────── */
 :root {
-  /* Color palette */
-  --clr-bg:            #0d0f14;
-  --clr-surface:       #13161f;
-  --clr-surface-2:     #1a1e2b;
-  --clr-surface-3:     #222638;
-  --clr-border:        rgba(255,255,255,0.07);
-  --clr-border-active: rgba(255,255,255,0.15);
+  /* Color palette — monochrome graphite scale */
+  --clr-bg:            #0a0a0b;
+  --clr-surface:       #141416;
+  --clr-surface-2:     #1b1c1f;
+  --clr-surface-3:     #232427;
+  --clr-border:        rgba(255,255,255,0.06);
+  --clr-border-active: rgba(255,255,255,0.14);
 
-  /* Brand gradient */
-  --clr-primary:       #6c63ff;
-  --clr-primary-light: #8b84ff;
-  --clr-primary-dark:  #5a52d5;
-  --gradient-brand:    linear-gradient(135deg, #6c63ff 0%, #a78bfa 100%);
-  --gradient-card:     linear-gradient(145deg, #1a1e2b 0%, #13161f 100%);
+  /* Primary action — inverted neutral (light on dark), no brand color */
+  --clr-primary:        #e8e9eb;
+  --clr-primary-hover:  #ffffff;
+  --clr-primary-text:   #111214;
 
-  /* Semantic colors */
-  --clr-success:       #22c55e;
-  --clr-warning:       #f59e0b;
-  --clr-danger:        #ef4444;
-  --clr-info:          #3b82f6;
+  /* Semantic colors — muted, used only for status/feedback */
+  --clr-success:       #4ade80;
+  --clr-warning:       #f0b558;
+  --clr-danger:        #f4716a;
+  --clr-info:          #9ca3af;
 
   /* Status colors */
-  --clr-pending:       #f59e0b;
-  --clr-approved:      #22c55e;
-  --clr-rejected:      #ef4444;
+  --clr-pending:       #f0b558;
+  --clr-approved:      #4ade80;
+  --clr-rejected:      #f4716a;
 
   /* Text */
-  --clr-text-primary:  #f1f5f9;
-  --clr-text-secondary:#94a3b8;
-  --clr-text-muted:    #64748b;
-  --clr-text-inverse:  #0d0f14;
+  --clr-text-primary:  #eceef0;
+  --clr-text-secondary:#96999f;
+  --clr-text-muted:    #63666c;
+  --clr-text-inverse:  #0a0a0b;
 
-  /* Shadows */
-  --shadow-sm:    0 1px 3px rgba(0,0,0,0.4);
-  --shadow-md:    0 4px 16px rgba(0,0,0,0.5);
-  --shadow-lg:    0 8px 32px rgba(0,0,0,0.6);
-  --shadow-glow:  0 0 24px rgba(108,99,255,0.25);
+  /* Shadows — neutral, layered elevation (no colored glow) */
+  --shadow-1:    0 1px 2px rgba(0,0,0,0.4);
+  --shadow-2:    0 2px 8px rgba(0,0,0,0.35), 0 8px 24px rgba(0,0,0,0.25);
+  --shadow-3:    0 4px 16px rgba(0,0,0,0.4), 0 16px 40px rgba(0,0,0,0.35);
 
   /* Spacing */
   --space-1:  4px;

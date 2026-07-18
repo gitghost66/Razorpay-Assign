@@ -66,11 +66,11 @@ const Reimbursements = (() => {
       </div>
       <div class="stat-card slide-up stagger-2">
         <span class="stat-label">Pending</span>
-        <span class="stat-value" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${pending}</span>
+        <span class="stat-value" style="color:var(--clr-pending);">${pending}</span>
       </div>
       <div class="stat-card slide-up stagger-3">
         <span class="stat-label">Approved</span>
-        <span class="stat-value" style="background:linear-gradient(135deg,#22c55e,#4ade80);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${approved}</span>
+        <span class="stat-value" style="color:var(--clr-approved);">${approved}</span>
       </div>
       <div class="stat-card slide-up stagger-4">
         <span class="stat-label">Total Value</span>
@@ -195,11 +195,11 @@ const Reimbursements = (() => {
               <button class="btn btn-success btn-sm review-approve-btn"
                       data-id="${rid}"
                       data-input-id="${inputId}"
-                      title="Approve this claim">✔ Approve</button>
+                      title="Approve this claim">${Icons.html('check')} Approve</button>
               <button class="btn btn-danger btn-sm review-reject-btn"
                       data-id="${rid}"
                       data-input-id="${inputId}"
-                      title="Reject this claim">✕ Reject</button>
+                      title="Reject this claim">${Icons.html('cross')} Reject</button>
             </div>
           </div>
         </td>
@@ -233,7 +233,7 @@ const Reimbursements = (() => {
 
     const confirmed = await UI.showModal({
       title      : status === 'APPROVED' ? 'Approve Claim' : 'Reject Claim',
-      body       : `Are you sure you want to ${status.toLowerCase()} this reimbursement request?`,
+      body       : `Are you sure you want to ${status === 'APPROVED' ? 'approve' : 'reject'} this reimbursement request?`,
       confirmText: status === 'APPROVED' ? 'Yes, Approve' : 'Yes, Reject',
       confirmClass: status === 'APPROVED' ? 'btn-success' : 'btn-danger',
     });

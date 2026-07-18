@@ -146,7 +146,11 @@ const Auth = (() => {
         const input    = document.getElementById(targetId);
         if (!input) return;
         input.type = input.type === 'password' ? 'text' : 'password';
-        btn.textContent = input.type === 'password' ? '👁' : '🙈';
+        const iconSlot = btn.querySelector('[data-icon]');
+        if (iconSlot) {
+          iconSlot.dataset.icon = input.type === 'password' ? 'eye' : 'eyeOff';
+          UI.hydrateIcons(btn);
+        }
       });
     });
   }

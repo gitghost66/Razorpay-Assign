@@ -13,7 +13,7 @@
 const UI = (() => {
 
   /* ── Toast Notifications ─────────────────────────────── */
-  const icons = { success: '✓', error: '✕', info: 'ℹ' };
+  const toastIcons = { success: 'check', error: 'cross', info: 'info' };
 
   function showToast(message, type = 'info') {
     const container = document.getElementById('toast-container');
@@ -21,7 +21,7 @@ const UI = (() => {
     toast.className = `toast toast-${type}`;
     toast.setAttribute('role', 'alert');
     toast.innerHTML = `
-      <span class="toast-icon">${icons[type] || icons.info}</span>
+      <span class="toast-icon">${Icons.html(toastIcons[type] || toastIcons.info)}</span>
       <span class="toast-message">${escapeHtml(message)}</span>
     `;
 
@@ -78,12 +78,13 @@ const UI = (() => {
   /* ── Status Badge HTML ───────────────────────────────── */
   function statusBadge(status) {
     const map = {
-      PENDING : { cls: 'badge-pending',  icon: '⏳', label: 'Pending'  },
-      APPROVED: { cls: 'badge-approved', icon: '✔',  label: 'Approved' },
-      REJECTED: { cls: 'badge-rejected', icon: '✕',  label: 'Rejected' },
+      PENDING : { cls: 'badge-pending',  icon: 'clock', label: 'Pending'  },
+      APPROVED: { cls: 'badge-approved', icon: 'check', label: 'Approved' },
+      REJECTED: { cls: 'badge-rejected', icon: 'cross', label: 'Rejected' },
     };
     const info = map[status] || { cls: '', icon: '', label: status };
-    return `<span class="badge ${info.cls}">${info.icon} ${info.label}</span>`;
+    const icon = info.icon ? Icons.html(info.icon) : '';
+    return `<span class="badge ${info.cls}">${icon} ${escapeHtml(info.label)}</span>`;
   }
 
   /** Role badge HTML */
@@ -196,11 +197,11 @@ const UI = (() => {
     navList.innerHTML = '';
 
     const navItems = [
-      { id: 'dashboard', label: 'Dashboard', icon: '📊', roles: ['EMP', 'RM', 'APE', 'CFO'] },
-      { id: 'submit-claim', label: 'Submit Claim', icon: '📝', roles: ['EMP'] },
-      { id: 'review', label: 'Review Claims', icon: '🔍', roles: ['RM', 'APE', 'CFO'] },
-      { id: 'employees', label: 'Employees', icon: '👥', roles: ['RM', 'APE', 'CFO'] },
-      { id: 'roles', label: 'Role Management', icon: '🛡', roles: ['CFO'] },
+      { id: 'dashboard', label: 'Dashboard', icon: 'dashboard', roles: ['EMP', 'RM', 'APE', 'CFO'] },
+      { id: 'submit-claim', label: 'Submit Claim', icon: 'submitClaim', roles: ['EMP'] },
+      { id: 'review', label: 'Review Claims', icon: 'review', roles: ['RM', 'APE', 'CFO'] },
+      { id: 'employees', label: 'Employees', icon: 'employees', roles: ['RM', 'APE', 'CFO'] },
+      { id: 'roles', label: 'Role Management', icon: 'roles', roles: ['CFO'] },
     ];
 
     navItems
@@ -212,7 +213,7 @@ const UI = (() => {
         li.style.animationDelay = `${index * 50}ms`;
         li.innerHTML = `
           <button id="nav-${item.id}" aria-label="Navigate to ${item.label}">
-            <span class="nav-icon">${item.icon}</span>
+            <span class="nav-icon">${Icons.html(item.icon)}</span>
             ${escapeHtml(item.label)}
           </button>
         `;
@@ -237,6 +238,14 @@ const UI = (() => {
     });
   }
 
+  /* ── Icon hydration ───────────────────────────────────── */
+  /** Fills every [data-icon] placeholder within `root` with its SVG markup. */
+  function hydrateIcons(root = document) {
+    root.querySelectorAll('[data-icon]').forEach(el => {
+      el.innerHTML = Icons.html(el.dataset.icon);
+    });
+  }
+
   return {
     showToast,
     setButtonLoading,
@@ -255,5 +264,6 @@ const UI = (() => {
     buildNav,
     setActiveNav,
     animateRows,
+    hydrateIcons,
   };
 })();

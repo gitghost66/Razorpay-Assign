@@ -14,6 +14,7 @@
   globalLoader.classList.remove('hidden');
 
   // ── 2. Initialise UI helpers ─────────────────────────────
+  UI.hydrateIcons();
   UI.initModal();
   Router.init();
   Auth.init();

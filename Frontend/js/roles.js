@@ -40,7 +40,7 @@ const Roles = (() => {
       resultContent.innerHTML = `
         <div class="result-label">User ID</div>
         <div class="result-value">#${UI.escapeHtml(String(res.data.userId))}</div>
-        <div style="margin: 0 8px; color: var(--clr-text-muted);">→</div>
+        <div style="margin: 0 8px; color: var(--clr-text-muted);">${Icons.html('arrow')}</div>
         <div class="result-label">New Role</div>
         <div class="result-value">${UI.roleBadge(res.data.role)}</div>
       `;

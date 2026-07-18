@@ -18,7 +18,7 @@
 }
 
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -28,45 +28,29 @@
 }
 
 @keyframes slide-in-right {
-  from { opacity: 0; transform: translateX(-16px); }
+  from { opacity: 0; transform: translateX(-10px); }
   to   { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.92); }
+  from { opacity: 0; transform: scale(0.97); }
   to   { opacity: 1; transform: scale(1); }
 }
 
 @keyframes toast-in {
-  from { opacity: 0; transform: translateX(40px) scale(0.92); }
-  to   { opacity: 1; transform: translateX(0)   scale(1); }
-}
-
-@keyframes toast-out {
-  from { opacity: 1; transform: translateX(0)   scale(1); max-height: 100px; }
-  to   { opacity: 0; transform: translateX(40px) scale(0.92); max-height: 0; padding: 0; margin: 0; }
-}
-
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 16px rgba(108,99,255,0.2); }
-  50%       { box-shadow: 0 0 28px rgba(108,99,255,0.45); }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-6px); }
-}
-
-@keyframes nav-item-in {
-  from { opacity: 0; transform: translateX(-12px); }
+  from { opacity: 0; transform: translateX(24px); }
   to   { opacity: 1; transform: translateX(0); }
 }
 
+@keyframes toast-out {
+  from { opacity: 1; transform: translateX(0);   max-height: 100px; }
+  to   { opacity: 0; transform: translateX(24px); max-height: 0; padding: 0; margin: 0; }
+}
+
 /* ── Animation utility classes ───────────────────────────── */
-.fade-in   { animation: fade-in  var(--transition-slow) ease both; }
-.slide-up  { animation: slide-up var(--transition-slow) ease both; }
-.scale-in  { animation: scale-in var(--transition-base) ease both; }
-.float-anim { animation: float 4s ease-in-out infinite; }
+.fade-in   { animation: fade-in  var(--transition-slow) ease-out both; }
+.slide-up  { animation: slide-up var(--transition-slow) ease-out both; }
+.scale-in  { animation: scale-in var(--transition-base) ease-out both; }
 
 /* Stagger animation helper */
 .stagger-1 { animation-delay: 60ms;  }
@@ -74,28 +58,21 @@
 .stagger-3 { animation-delay: 180ms; }
 .stagger-4 { animation-delay: 240ms; }
 
-/* ── Card animate (auth page) ────────────────────────────── */
+/* ── Card / modal entrance — calm ease-out, no overshoot ─── */
 .card-animate {
-  animation: slide-up 500ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: slide-up 320ms ease-out both;
 }
 
-/* ── Modal animate ───────────────────────────────────────── */
 .modal-animate {
-  animation: scale-in 250ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: scale-in 180ms ease-out both;
 }
 
 /* ── View transition ─────────────────────────────────────── */
 .view-entering {
-  animation: slide-up 350ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: slide-up 250ms ease-out both;
 }
 
 /* ── Table row animate ───────────────────────────────────── */
 .row-animate {
-  animation: slide-in-right 300ms ease both;
-}
-
-/* ── Logo float ──────────────────────────────────────────── */
-.logo-icon {
-  display: inline-block;
-  animation: float 3s ease-in-out infinite;
+  animation: slide-in-right 220ms ease-out both;
 }

@@ -2,11 +2,14 @@
 
 require('dotenv').config();
 
-const express    = require('express');
-const cors       = require('cors');
-const session    = require('express-session');
-const pgSession  = require('connect-pg-simple')(session);
-const pool       = require('./db/index');
+const express      = require('express');
+const cors         = require('cors');
+const helmet       = require('helmet');
+const compression  = require('compression');
+const rateLimit    = require('express-rate-limit');
+const session      = require('express-session');
+const pgSession    = require('connect-pg-simple')(session);
+const pool         = require('./db/index');
 
 // Route modules
 const onboardingRoutes     = require('./routes/onboarding.routes');
@@ -15,6 +18,10 @@ const employeesRoutes      = require('./routes/employees.routes');
 const reimbursementsRoutes = require('./routes/reimbursements.routes');
 
 const app = express();
+
+// ── Security headers & compression ──────────────────────────────────────────
+app.use(helmet());
+app.use(compression());
 
 // ── Trust Proxy ──────────────────────────────────────────────────────────────
 // Render (and most PaaS platforms) terminate TLS at a load balancer and forward
@@ -78,6 +85,18 @@ app.get('/', (req, res) => {
     message: 'RBAC Reimbursements API is running!',
   });
 });
+
+// ── Rate limiting ────────────────────────────────────────────────────────────
+// Credential-stuffing / brute-force protection on login & registration only —
+// every other route already requires an authenticated session.
+const authRateLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  limit   : 10,
+  standardHeaders: true,
+  legacyHeaders  : false,
+  message: { status: 'error', message: 'Too many attempts. Please try again later.' },
+});
+app.use(['/rest/onboardings/login', '/rest/onboardings/register'], authRateLimiter);
 
 // ── Routes ───────────────────────────────────────────────────────────────────
 app.use('/rest/onboardings',    onboardingRoutes);

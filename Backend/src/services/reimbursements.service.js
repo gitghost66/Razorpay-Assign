@@ -38,6 +38,10 @@ async function createReimbursement({ empId, title, description, amount }) {
 /**
  * Update the approval/rejection status of a reimbursement.
  * Business logic varies by the actor's role.
+ *
+ * Runs as a single transaction so the status change and its audit-log entry
+ * either both land or neither does (a crash between two separate queries
+ * previously could have left an approval with no audit record).
  */
 async function updateReimbursementStatus({ reimbursementId, status, userId, role }) {
   if (!reimbursementId || !status) {
@@ -52,116 +56,118 @@ async function updateReimbursementStatus({ reimbursementId, status, userId, role
     throw err;
   }
 
-  // Fetch the reimbursement
-  const rResult = await pool.query(
-    'SELECT * FROM reimbursements WHERE id = $1',
-    [reimbursementId]
-  );
+  const client = await pool.connect();
 
-  if (rResult.rows.length === 0) {
-    const err = new Error('Reimbursement not found.');
-    err.statusCode = 404;
-    throw err;
-  }
+  try {
+    await client.query('BEGIN');
 
-  const reimb = rResult.rows[0];
-
-  if (role === 'RM') {
-    // RM can only act on reimbursements belonging to their own EMPs
-    const empCheck = await pool.query(
-      'SELECT 1 FROM employee_manager WHERE emp_id = $1 AND rm_id = $2',
-      [reimb.emp_id, userId]
+    // Fetch the reimbursement
+    const rResult = await client.query(
+      'SELECT * FROM reimbursements WHERE id = $1',
+      [reimbursementId]
     );
 
-    if (empCheck.rows.length === 0) {
-      const err = new Error('Forbidden: This reimbursement does not belong to your team.');
+    if (rResult.rows.length === 0) {
+      const err = new Error('Reimbursement not found.');
+      err.statusCode = 404;
+      throw err;
+    }
+
+    const reimb = rResult.rows[0];
+    let updateResult;
+
+    if (role === 'RM') {
+      // RM can only act on reimbursements belonging to their own EMPs
+      const empCheck = await client.query(
+        'SELECT 1 FROM employee_manager WHERE emp_id = $1 AND rm_id = $2',
+        [reimb.emp_id, userId]
+      );
+
+      if (empCheck.rows.length === 0) {
+        const err = new Error('Forbidden: This reimbursement does not belong to your team.');
+        err.statusCode = 403;
+        throw err;
+      }
+
+      updateResult = status === 'REJECTED'
+        ? await client.query(
+            "UPDATE reimbursements SET status = 'REJECTED' WHERE id = $1 RETURNING id, status",
+            [reimbursementId]
+          )
+        : await client.query(
+            `UPDATE reimbursements
+             SET rm_approved = TRUE,
+                 status = CASE WHEN ape_approved = TRUE THEN 'APPROVED' ELSE status END
+             WHERE id = $1
+             RETURNING id, status`,
+            [reimbursementId]
+          );
+    } else if (role === 'APE') {
+      // APE can only act on reimbursements where rm_approved = true and not already rejected
+      if (!reimb.rm_approved) {
+        const err = new Error('Forbidden: This reimbursement has not been approved by the RM yet.');
+        err.statusCode = 403;
+        throw err;
+      }
+      if (reimb.status === 'REJECTED') {
+        const err = new Error('Forbidden: This reimbursement has already been rejected.');
+        err.statusCode = 403;
+        throw err;
+      }
+
+      updateResult = status === 'REJECTED'
+        ? await client.query(
+            "UPDATE reimbursements SET status = 'REJECTED' WHERE id = $1 RETURNING id, status",
+            [reimbursementId]
+          )
+        : await client.query(
+            `UPDATE reimbursements
+             SET ape_approved = TRUE,
+                 status = CASE WHEN rm_approved = TRUE THEN 'APPROVED' ELSE status END
+             WHERE id = $1
+             RETURNING id, status`,
+            [reimbursementId]
+          );
+    } else if (role === 'CFO') {
+      // CFO can approve or reject any reimbursement
+      updateResult = status === 'REJECTED'
+        ? await client.query(
+            "UPDATE reimbursements SET status = 'REJECTED' WHERE id = $1 RETURNING id, status",
+            [reimbursementId]
+          )
+        : await client.query(
+            `UPDATE reimbursements
+             SET rm_approved = TRUE, ape_approved = TRUE, status = 'APPROVED'
+             WHERE id = $1
+             RETURNING id, status`,
+            [reimbursementId]
+          );
+    } else {
+      const err = new Error('Forbidden: You are not allowed to update reimbursements.');
       err.statusCode = 403;
       throw err;
     }
 
-    if (status === 'REJECTED') {
-      await pool.query(
-        "UPDATE reimbursements SET status = 'REJECTED' WHERE id = $1",
-        [reimbursementId]
-      );
-    } else {
-      // APPROVED by RM
-      await pool.query(
-        `UPDATE reimbursements
-         SET rm_approved = TRUE,
-             status = CASE WHEN ape_approved = TRUE THEN 'APPROVED' ELSE status END
-         WHERE id = $1`,
-        [reimbursementId]
-      );
-    }
-  } else if (role === 'APE') {
-    // APE can only act on reimbursements where rm_approved = true and not already rejected
-    if (!reimb.rm_approved) {
-      const err = new Error('Forbidden: This reimbursement has not been approved by the RM yet.');
-      err.statusCode = 403;
-      throw err;
-    }
-    if (reimb.status === 'REJECTED') {
-      const err = new Error('Forbidden: This reimbursement has already been rejected.');
-      err.statusCode = 403;
-      throw err;
-    }
+    // Record in audit table
+    await client.query(
+      `INSERT INTO reimbursement_approvals (reimbursement_id, approved_by, approver_role, action)
+       VALUES ($1, $2, $3, $4)`,
+      [reimbursementId, userId, role, status]
+    );
 
-    if (status === 'REJECTED') {
-      await pool.query(
-        "UPDATE reimbursements SET status = 'REJECTED' WHERE id = $1",
-        [reimbursementId]
-      );
-    } else {
-      // APPROVED by APE
-      await pool.query(
-        `UPDATE reimbursements
-         SET ape_approved = TRUE,
-             status = CASE WHEN rm_approved = TRUE THEN 'APPROVED' ELSE status END
-         WHERE id = $1`,
-        [reimbursementId]
-      );
-    }
-  } else if (role === 'CFO') {
-    // CFO can approve or reject any reimbursement
-    if (status === 'REJECTED') {
-      await pool.query(
-        "UPDATE reimbursements SET status = 'REJECTED' WHERE id = $1",
-        [reimbursementId]
-      );
-    } else {
-      // CFO approves → set both flags and status
-      await pool.query(
-        `UPDATE reimbursements
-         SET rm_approved = TRUE, ape_approved = TRUE, status = 'APPROVED'
-         WHERE id = $1`,
-        [reimbursementId]
-      );
-    }
-  } else {
-    const err = new Error('Forbidden: You are not allowed to update reimbursements.');
-    err.statusCode = 403;
+    await client.query('COMMIT');
+
+    const updatedRow = updateResult.rows[0];
+    return {
+      reimbursementId: updatedRow.id,
+      status: updatedRow.status,
+    };
+  } catch (err) {
+    await client.query('ROLLBACK');
     throw err;
+  } finally {
+    client.release();
   }
-
-  // Fetch updated status
-  const updated = await pool.query(
-    'SELECT id, status FROM reimbursements WHERE id = $1',
-    [reimbursementId]
-  );
-
-  // Record in audit table
-  await pool.query(
-    `INSERT INTO reimbursement_approvals (reimbursement_id, approved_by, approver_role, action)
-     VALUES ($1, $2, $3, $4)`,
-    [reimbursementId, userId, role, status]
-  );
-
-  const updatedRow = updated.rows[0];
-  return {
-    reimbursementId: updatedRow.id,
-    status: updatedRow.status,
-  };
 }
 
 /**

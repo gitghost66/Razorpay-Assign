@@ -80,7 +80,7 @@ const Employees = (() => {
                     data-id="${emp.userId}"
                     data-name="${UI.escapeHtml(emp.name)}"
                     data-email="${UI.escapeHtml(emp.email)}">
-              View Claims →
+              View Claims ${Icons.html('arrow')}
             </button>
           </td>
         ` : canViewDetail ? '<td>—</td>' : ''}
